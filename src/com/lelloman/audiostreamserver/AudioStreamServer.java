@@ -13,20 +13,23 @@ public class AudioStreamServer extends Thread implements AudioCapture.AudioCaptu
 
 	protected int clientPort;
 	protected int port, sampleRate, bitDepth, bufferSize;
+	protected boolean sendTestTone;
 	protected boolean running = false;
 
 	protected InetAddress clientAddress;
 	private DatagramSocket serverSocket;
 	private byte[] buffer;
 	DatagramPacket dataPacket;
+	float tonePhase;
 
 
-	public AudioStreamServer(int port, int sampleRate, int bitDepth, int bufferSize) {
+	public AudioStreamServer(int port, int sampleRate, int bitDepth, int bufferSize, boolean sendTestTone) {
 
 		this.port = port;
 		this.sampleRate = sampleRate;
 		this.bitDepth = bitDepth;
 		this.bufferSize = bufferSize;
+		this.sendTestTone = sendTestTone;
 	}
 
 	public void serveForever() {
@@ -117,6 +120,15 @@ public class AudioStreamServer extends Thread implements AudioCapture.AudioCaptu
 	public void onAudioDataRead(byte[] data, int read) {
 		if (clientAddress == null || clientPort == 0)
 			return;
+
+		if(sendTestTone) {
+			for (int i = 0; i < data.length; i++) {
+				data[i] = (byte) (Math.sin(tonePhase) * 100);
+				tonePhase += .1f;
+				if (tonePhase > Math.PI)
+					tonePhase -= Math.PI;
+			}
+		}
 
 		try {
 			if (dataPacket == null) {

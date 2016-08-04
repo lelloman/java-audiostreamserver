@@ -50,20 +50,21 @@ public class Main {
 		int bufferSize = getIntOption(cmd,"buffer_size", DEFAULT_BUFFER_SIZE);
 		int bitDepth = getIntOption(cmd, "bit_depth", DEFAULT_BIT_DEPTH);
 		boolean verbose = cmd.hasOption("verbose");
+		boolean testTone = cmd.hasOption("test_tone");
 
-		log("args- port<%s> sampleRte<%s> mixerLine<%s> bufferSize<%s> bitDepth<%s>", port,sampleRate,mixerLine,bufferSize, bitDepth);
+		log("args- port<%s> sampleRte<%s> mixerLine<%s> bufferSize<%s> bitDepth<%s> verbose<%s> testTone<%s>", port,sampleRate,mixerLine,bufferSize, bitDepth, verbose, testTone);
 
 		try {
-			start(mixerLine,bufferSize,sampleRate,bitDepth,port,verbose);
+			start(mixerLine,bufferSize,sampleRate,bitDepth,port,verbose,testTone);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
 
 
-	private static void start(int mixerLine, int bufferSize, int sampleRate, int bitDepth, int port, boolean verbose) throws UnknownHostException {
+	private static void start(int mixerLine, int bufferSize, int sampleRate, int bitDepth, int port, boolean verbose,boolean testTone) throws UnknownHostException {
 
-		AudioStreamServer server = new AudioStreamServer(port,sampleRate,bitDepth,bufferSize);
+		AudioStreamServer server = new AudioStreamServer(port,sampleRate,bitDepth,bufferSize, testTone);
 
 		server.serveForever();
 
@@ -117,6 +118,9 @@ public class Main {
 
 		Option verbose = new Option("verbose","verbose",false,"with verbose captured pcm data will be logged");
 		options.addOption(verbose);
+
+		Option testTone = new Option("t","test_tone",false, "send a test tone instead of audio captured");
+		options.addOption(testTone);
 
 		return options;
 	}
